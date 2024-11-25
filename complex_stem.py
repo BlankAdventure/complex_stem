@@ -160,20 +160,20 @@ def stem2D(K:vector, fs:None|float=None, angle:float=80, sf:float=1.5, \
         elif fancy: ax.scatter(x,0, marker='.', color='black', zorder=0)
     
     if normalize:
-        ax.set_ylim([-1,1])        
+        ax.set_ylim([-1.02,1.02])        
         plt.yticks(ticks=[-1,1],labels=["-1","1"])    
     
     if fancy:
         tick_pos.append(Nk-1)
         tick_labels.append(tick_formatter(ki[-1],Nk,fs=fs,methods=format_list,units=True))
         ax.set_xticks(xx, ki)    
-        ax.set_xlim([-1, Nk])
+        ax.set_xlim([-0.1, Nk-1+0.1])
         sec = ax.secondary_xaxis(location=0.50, zorder=3)    
         sec.set_xticks(tick_pos, tick_labels, zorder=3 )    
         ax.tick_params(labelsize=8)
         sec.tick_params(labelsize=8)    
     else:
-        ax.set_xlim([-1, Nk])
+        ax.set_xlim([-0.1, Nk-1+0.1])
         ax.set_xticks([])
         sec = ax.secondary_xaxis(location=0.50, zorder=3)    
         sec.set_xticks(tick_pos, tick_labels, zorder=3 )    
@@ -211,4 +211,4 @@ if __name__ == "__main__":
     s = np.cos(x*2*k1*np.pi/N) + np.sin(x*2*k2*np.pi/N)
     KS = fftshift(fft(s))
 
-    stem2D(KS,fs=150,label_active=True,mode='MP')
+    stem2D(KS,fs=150,label_active=True,mode='MP',fancy=True)
