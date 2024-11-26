@@ -96,17 +96,18 @@ def stem2D(K:vector, fs:None|float=None, angle:float=80, sf:float=1.5, \
         Displays the plot.
 
     '''
+
+    th = np.deg2rad(angle)
+    Nk = len(K)
+    xx = np.arange(Nk)    
+    ki = get_index(Nk)
     
     if normalize:
         K = K / max(abs(K))
         
     if fs:
         format_list.append('f_hz')
-    
-    th = np.deg2rad(angle)
-    Nk = len(K)
-    xx = np.arange(Nk)    
-    ki = get_index(Nk)
+   
     
     if mode == 'MP':
         rr = np.abs(K)
@@ -121,7 +122,7 @@ def stem2D(K:vector, fs:None|float=None, angle:float=80, sf:float=1.5, \
     tick_pos = []
     tick_labels = []
 
-    if fancy:
+    if fancy: #apppend left-side tick labels
         tick_pos.append(0)
         tick_labels.append( tick_formatter(ki[0],Nk,fs=fs,methods=format_list,units=True) )
     
@@ -166,19 +167,15 @@ def stem2D(K:vector, fs:None|float=None, angle:float=80, sf:float=1.5, \
     if fancy:
         tick_pos.append(Nk-1)
         tick_labels.append(tick_formatter(ki[-1],Nk,fs=fs,methods=format_list,units=True))
-        ax.set_xticks(xx, ki)    
-        ax.set_xlim([-0.1, Nk-1+0.1])
-        sec = ax.secondary_xaxis(location=0.50, zorder=3)    
-        sec.set_xticks(tick_pos, tick_labels, zorder=3 )    
-        ax.tick_params(labelsize=8)
-        sec.tick_params(labelsize=8)    
+        ax.set_xticks(xx, ki)   
+        ax.tick_params(labelsize=10)
     else:
-        ax.set_xlim([-0.1, Nk-1+0.1])
         ax.set_xticks([])
-        sec = ax.secondary_xaxis(location=0.50, zorder=3)    
-        sec.set_xticks(tick_pos, tick_labels, zorder=3 )    
-        sec.tick_params(labelsize=8)
 
+    ax.set_xlim([-0.1, Nk-1+0.1])    
+    sec = ax.secondary_xaxis(location=0.50, zorder=3)    
+    sec.set_xticks(tick_pos, tick_labels, zorder=3 )    
+    sec.tick_params(labelsize=8)
     plt.setp( ax.get_xticklabels(), backgroundcolor=TICK_BACKGROUND)
     plt.setp(sec.get_xticklabels(), backgroundcolor=TICK_BACKGROUND)   
 
@@ -193,10 +190,6 @@ def stem2D(K:vector, fs:None|float=None, angle:float=80, sf:float=1.5, \
     lines = [Line2D([0], [0], color=c, linewidth=2, linestyle='-') for c in colors]    
     plt.legend(lines, legend_names, fontsize = 'x-small', loc=2)
     
-    # Possibly want to adjust end label alignment
-    #sec.get_xticklabels()[0].set_horizontalalignment("left")
-    #sec.get_xticklabels()[-1].set_horizontalalignment("right")
-
 
 if __name__ == "__main__":
     # Demo run
@@ -211,4 +204,4 @@ if __name__ == "__main__":
     s = np.cos(x*2*k1*np.pi/N) + np.sin(x*2*k2*np.pi/N)
     KS = fftshift(fft(s))
 
-    stem2D(KS,fs=150,label_active=True,mode='MP',fancy=True)
+    stem2D(KS,fs=150,label_active=False,mode='MP',fancy=True)
