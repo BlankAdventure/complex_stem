@@ -68,7 +68,8 @@ def tick_formatter(k:int,N:int,fs:None|float=None, methods: list=[str], units:bo
 
 def stem2D(K:vector, fs:None|float=None, angle:float=80, sf:float=1.5, \
                 label_active:bool=False, mode:str='RI', normalize:bool=True, fancy:bool=True, \
-                format_list: list = default_ticks[:], mag_limit:float=MAG_LIMIT) -> None:
+                format_list: list = default_ticks, mag_limit:float=MAG_LIMIT, \
+                figsize: tuple[float,float] =(6,4)) -> None:
     '''
     Parameters
     ----------
@@ -101,13 +102,13 @@ def stem2D(K:vector, fs:None|float=None, angle:float=80, sf:float=1.5, \
     Nk = len(K)
     xx = np.arange(Nk)    
     ki = get_index(Nk)
+    format_list = format_list[:]
     
     if normalize:
         K = K / max(abs(K))
         
     if fs:
-        format_list.append('f_hz')
-   
+        format_list.append('f_hz')  
     
     if mode == 'MP':
         rr = np.abs(K)
@@ -126,7 +127,7 @@ def stem2D(K:vector, fs:None|float=None, angle:float=80, sf:float=1.5, \
         tick_pos.append(0)
         tick_labels.append( tick_formatter(ki[0],Nk,fs=fs,methods=format_list,units=True) )
     
-    fig, ax = plt.subplots(layout='constrained', figsize=(6, 4))
+    fig, ax = plt.subplots(layout='constrained', figsize=figsize)
 
     for x in xx:        
         if abs(K[x]) > mag_limit:            
@@ -168,7 +169,7 @@ def stem2D(K:vector, fs:None|float=None, angle:float=80, sf:float=1.5, \
         tick_pos.append(Nk-1)
         tick_labels.append(tick_formatter(ki[-1],Nk,fs=fs,methods=format_list,units=True))
         ax.set_xticks(xx, ki)   
-        ax.tick_params(labelsize=10)
+        ax.tick_params(labelsize=8)
     else:
         ax.set_xticks([])
 
@@ -204,4 +205,4 @@ if __name__ == "__main__":
     s = np.cos(x*2*k1*np.pi/N) + np.sin(x*2*k2*np.pi/N)
     KS = fftshift(fft(s))
 
-    stem2D(KS,fs=150,label_active=False,mode='MP',fancy=True)
+    stem2D(KS,fs=150,label_active=False,mode='MP',fancy=True, figsize=(5,3))
