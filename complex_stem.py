@@ -67,9 +67,9 @@ def tick_formatter(k:int,N:int,fs:None|float=None, methods: list=[str], units:bo
     return out_str.strip()
 
 def stem2D(K:vector, fs:None|float=None, angle:float=80, sf:float=1.5, \
-                label_active:bool=False, mode:str='RI', normalize:bool=True, fancy:bool=True, \
+                label_active:bool=False, mode:str='RI', fancy:bool=True, \
                 format_list: list = default_ticks, mag_limit:float=MAG_LIMIT, \
-                figsize: tuple[float,float] =(6,4)) -> None:
+                figsize: tuple[float,float] =(6,4), norm_type:str|None=None) -> None:
     '''
     Parameters
     ----------
@@ -102,17 +102,20 @@ def stem2D(K:vector, fs:None|float=None, angle:float=80, sf:float=1.5, \
     Nk = len(K)
     xx = np.arange(Nk)    
     ki = get_index(Nk)
-    format_list = format_list[:]
-    
-    if normalize:
-        K = K / max(abs(K))
+    format_list = format_list[:]    
+
+    match norm_type:
+        case 'mag':
+            K = K / max(abs(K))
+        case 'bin':
+            K = K / (Nk//2)        
         
     if fs:
         format_list.append('f_hz')  
     
     if mode == 'MP':
         rr = np.abs(K)
-        ii = np.angle(K)        
+        ii = np.angle(K)
         legend_names = ['Mag', 'Phase']
     else:
         rr = np.real(K)
@@ -161,9 +164,10 @@ def stem2D(K:vector, fs:None|float=None, angle:float=80, sf:float=1.5, \
                 tick_labels.append(tick_formatter(ki[x],Nk,fs=fs,methods=format_list))
         elif fancy: ax.scatter(x,0, marker='.', color='black', zorder=0)
     
-    if normalize:
-        ax.set_ylim([-1.02,1.02])        
-        plt.yticks(ticks=[-1,1],labels=["-1","1"])    
+    # Scale y-axis based on max component magnitude        
+    y_ext = np.max(np.abs(K))
+    ax.set_ylim([-y_ext*1.02,y_ext*1.02])        
+    plt.yticks(ticks=[-y_ext,y_ext],labels=[f'{-y_ext:.1f}',f'{y_ext:.1f}'])    
     
     if fancy:
         tick_pos.append(Nk-1)
@@ -205,4 +209,4 @@ if __name__ == "__main__":
     s = np.cos(x*2*k1*np.pi/N) + np.sin(x*2*k2*np.pi/N)
     KS = fftshift(fft(s))
 
-    stem2D(KS,fs=150,label_active=False,mode='MP',fancy=True, figsize=(5,3))
+    stem2D(KS,fs=150,label_active=False,mode='MP',fancy=True, figsize=(5,3), norm_type='bin')
