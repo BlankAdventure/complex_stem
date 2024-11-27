@@ -9,6 +9,7 @@ from matplotlib.lines import Line2D
 import numpy as np
 from nptyping import NDArray, Shape
 from typing import Any, Callable
+from dataclasses import dataclass, field, asdict
 
 vector =  NDArray[Shape["*"], Any]
 
@@ -24,6 +25,34 @@ default_ticks = ['df_pi', 'df_hz']
 
 MAG_LIMIT = 1e-3
 TICK_BACKGROUND = "#FFFFFFBF"
+
+@dataclass    
+class DefaultConfigDict:
+    fs: float|None = None
+    angle: float = 85
+    sf: float = 2
+    tick_format: list = field(default_factory=lambda: default_ticks)
+    mag_limit: float = MAG_LIMIT
+    figsize: tuple[float,float] =(6,4)
+    norm: str|None='bin'
+    label_active: bool = False
+    mode: str|None = 'bin'
+    fancy: bool = True
+
+
+def merge_dicts(base_dict: dict, kw_dict: dict) -> dict:
+    # Create a copy of base_dict to avoid mutating the original
+    merged_dict = base_dict.copy()
+
+    # Check for unmatched keys in in_dict
+    for key in kw_dict:
+        if key not in base_dict:
+            raise KeyError(f"Key '{key}' from kw_dict is not present in base_dict.")
+        # If key exists in both, overwrite with in_dict's value
+        merged_dict[key] = kw_dict[key]
+
+    return merged_dict
+
 
 def get_index(N:int) -> vector:
     '''  
@@ -66,10 +95,7 @@ def tick_formatter(k:int,N:int,fs:None|float=None, methods: list=[str], units:bo
     out_str = ''.join([tick_formats[key][0](k,N,fs)+tick_formats[key][1] if units else tick_formats[key][0](k,N,fs) for key in methods])
     return out_str.strip()
 
-def stem2D(K:vector, fs:None|float=None, angle:float=85, sf:float=2, \
-                label_active:bool=False, mode:str='RI', fancy:bool=True, \
-                format_list: list = default_ticks, mag_limit:float=MAG_LIMIT, \
-                figsize: tuple[float,float] =(6,4), norm:str|None=None) -> None:
+def stem2D(K:vector, config=DefaultConfigDict(), **kwargs) -> None:
     '''
     Parameters
     ----------
@@ -98,22 +124,24 @@ def stem2D(K:vector, fs:None|float=None, angle:float=85, sf:float=2, \
 
     '''
 
-    th = np.deg2rad(angle)
+    config = merge_dicts(asdict(config), kwargs)
+
+    th = np.deg2rad(config['angle'])
     Nk = len(K)
     xx = np.arange(Nk)    
     ki = get_index(Nk)
-    format_list = format_list[:]    
+    format_list = config['tick_format']
 
-    match norm:
+    match config['norm']:
         case 'mag':
             K = K / max(abs(K))
         case 'bin':
             K = K / (Nk//2)        
         
-    if fs:
+    if config['fs']:
         format_list.append('f_hz')  
     
-    if mode == 'MP':
+    if config['mode'] == 'MP':
         rr = np.abs(K)
         ii = np.angle(K)
         legend_names = ['Mag', 'Phase']
@@ -126,20 +154,20 @@ def stem2D(K:vector, fs:None|float=None, angle:float=85, sf:float=2, \
     tick_pos = []
     tick_labels = []
 
-    if fancy: #apppend left-side tick labels
+    if config['fancy']: #apppend left-side tick labels
         tick_pos.append(0)
-        tick_labels.append( tick_formatter(ki[0],Nk,fs=fs,methods=format_list,units=True) )
+        tick_labels.append( tick_formatter(ki[0],Nk,fs=config['fs'],methods=format_list,units=True) )
     
-    fig, ax = plt.subplots(layout='constrained', figsize=figsize)
+    _, ax = plt.subplots(layout='constrained', figsize=config['figsize'])
 
     for x in xx:        
-        if abs(K[x]) > mag_limit:            
+        if abs(K[x]) > config['mag_limit']:            
             # ****** imaginary or phase lines *****
             x1 = x
             y1 = 0
             
             x2 = x
-            y2 = sf*ii[x]
+            y2 = config['sf']*ii[x]
             # We need to rotate the point to produce the illusion of lying
             # in the flat plane
             xn = np.cos(th)*(x2-x1) - np.sin(th)*(y2-y1)+x1
@@ -159,19 +187,19 @@ def stem2D(K:vector, fs:None|float=None, angle:float=85, sf:float=2, \
             ax.scatter(xr[1], yr[1], marker='.', color='blue', zorder=2)    
     
             # get active tick lables, if enabled
-            if label_active:
+            if config['label_active']:
                 tick_pos.append(x)
-                tick_labels.append(tick_formatter(ki[x],Nk,fs=fs,methods=format_list))
-        elif fancy: ax.scatter(x,0, marker='.', color='black', zorder=0)
+                tick_labels.append(tick_formatter(ki[x],Nk,fs=config['fs'],methods=format_list))
+        elif config['fancy']: ax.scatter(x,0, marker='.', color='black', zorder=0)
     
     # Scale y-axis based on max component magnitude        
     y_ext = np.max(np.abs(K))
     ax.set_ylim([-y_ext*1.02,y_ext*1.02])        
     plt.yticks(ticks=[-y_ext,y_ext],labels=[f'{-y_ext:.1f}',f'{y_ext:.1f}'])    
     
-    if fancy:
+    if config['fancy']:
         tick_pos.append(Nk-1)
-        tick_labels.append(tick_formatter(ki[-1],Nk,fs=fs,methods=format_list,units=True))
+        tick_labels.append(tick_formatter(ki[-1],Nk,fs=config['fs'],methods=format_list,units=True))
         ax.set_xticks(xx, ki)   
         ax.tick_params(labelsize=8)
     else:
@@ -211,4 +239,4 @@ if __name__ == "__main__":
     s = np.cos(x*2*k1*np.pi/N) + np.sin(x*2*k2*np.pi/N)
     KS = fftshift(fft(s))
 
-    stem2D(KS,fs=150,label_active=False,mode='MP',fancy=True, figsize=(5,3), norm_type='bin')
+    stem2D(KS,fs=150,label_active=False,mode='MP',fancy=True, figsize=(5,3) )
