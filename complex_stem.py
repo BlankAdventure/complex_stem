@@ -66,10 +66,10 @@ def tick_formatter(k:int,N:int,fs:None|float=None, methods: list=[str], units:bo
     out_str = ''.join([tick_formats[key][0](k,N,fs)+tick_formats[key][1] if units else tick_formats[key][0](k,N,fs) for key in methods])
     return out_str.strip()
 
-def stem2D(K:vector, fs:None|float=None, angle:float=80, sf:float=1.5, \
+def stem2D(K:vector, fs:None|float=None, angle:float=85, sf:float=2, \
                 label_active:bool=False, mode:str='RI', fancy:bool=True, \
                 format_list: list = default_ticks, mag_limit:float=MAG_LIMIT, \
-                figsize: tuple[float,float] =(6,4), norm_type:str|None=None) -> None:
+                figsize: tuple[float,float] =(6,4), norm:str|None=None) -> None:
     '''
     Parameters
     ----------
@@ -104,7 +104,7 @@ def stem2D(K:vector, fs:None|float=None, angle:float=80, sf:float=1.5, \
     ki = get_index(Nk)
     format_list = format_list[:]    
 
-    match norm_type:
+    match norm:
         case 'mag':
             K = K / max(abs(K))
         case 'bin':
@@ -194,6 +194,8 @@ def stem2D(K:vector, fs:None|float=None, angle:float=80, sf:float=1.5, \
     colors = ['blue','red']
     lines = [Line2D([0], [0], color=c, linewidth=2, linestyle='-') for c in colors]    
     plt.legend(lines, legend_names, fontsize = 'x-small', loc=2)
+    
+    plt.show()
     
 
 if __name__ == "__main__":
