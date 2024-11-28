@@ -21,9 +21,7 @@ tick_formats: dict[str, tuple[Callable, str]] = {
     'df_pi':  (lambda *a: f'\n{2*a[0]}π/{a[1]}', '[rad/samp]')
 }
              
-default_ticks = ['df_pi', 'df_hz']
 
-MAG_LIMIT = 1e-3
 TICK_BACKGROUND = "#FFFFFFBF"
 
 @dataclass    
@@ -31,8 +29,8 @@ class DefaultConfigDict:
     fs: float|None = None
     angle: float = 85
     sf: float = 2
-    tick_format: list = field(default_factory=lambda: default_ticks)
-    mag_limit: float = MAG_LIMIT
+    tick_format: list = field(default_factory=lambda: ['df_pi','df_hz'])
+    mag_limit: float = 1e-3
     figsize: tuple[float,float] =(6,4)
     norm: str|None='bin'
     label_active: bool = False
@@ -41,16 +39,36 @@ class DefaultConfigDict:
 
 
 def merge_dicts(base_dict: dict, kw_dict: dict) -> dict:
+    '''
+    
+
+    Parameters
+    ----------
+    base_dict : dict
+        Base/reference dict. This defines the valid set of keys.
+    kw_dict : dict
+        Dictionary with new key values.
+
+    Raises
+    ------
+    KeyError
+        Keys in kw_dict not present in base_dict will raise this error.
+
+    Returns
+    -------
+    dict
+        A new dictionary where common keys will take their values from
+        kw_dict. Unmatched keys in base_dict retain their values.
+
+    '''
     # Create a copy of base_dict to avoid mutating the original
     merged_dict = base_dict.copy()
-
     # Check for unmatched keys in in_dict
     for key in kw_dict:
         if key not in base_dict:
             raise KeyError(f"Key '{key}' from kw_dict is not present in base_dict.")
         # If key exists in both, overwrite with in_dict's value
         merged_dict[key] = kw_dict[key]
-
     return merged_dict
 
 
@@ -97,33 +115,27 @@ def tick_formatter(k:int,N:int,fs:None|float=None, methods: list=[str], units:bo
 
 def stem2D(K:vector, config=DefaultConfigDict(), **kwargs) -> None:
     '''
+    
+
     Parameters
     ----------
     K : vector
-        Vector of frequency components. Should be DC-centered!
-    fs : None|float, optional
-        Sampling rate, to display on x-axis, if desired.
-        The default is None.
-    angle : float, optional
-        Angle at which to draw the imag or phase components. 
-        The default is 80.
-    sf : float, optional
-        Optional "stretch factor" applied to imag or phase components. 
-        The default is 1.5.
-    label_active : bool, optional
-        Label the ticks corresponding to active components. 
-        The default is False.
-    mode : str, optional
-        Components can be real/imaginary (RI) or mag/phase (MP). 
-        The default is 'RI'.
+        The input DFT vector (DC-centered!)
+    config : TYPE, optional
+        Plotting configuration options. 
+        The default is DefaultConfigDict().        
+    **kwargs : TYPE
+        Any plotting arguments from DefaultConfigDict()
 
     Returns
     -------
     None
-        Displays the plot.
+        Generates a nice-looking DFT plot.
 
     '''
-
+    
+    
+    
     config = merge_dicts(asdict(config), kwargs)
 
     th = np.deg2rad(config['angle'])
