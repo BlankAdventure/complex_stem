@@ -36,7 +36,8 @@ class DefaultConfigDict:
     label_active: bool = False
     mode: str|None = 'bin'
     fancy: bool = True
-
+    real_mag: str = 'blue'
+    imag_ph: str = 'red'
 
 def merge_dicts(base_dict: dict, kw_dict: dict) -> dict:
     '''
@@ -188,15 +189,15 @@ def stem2D(K:vector, config=DefaultConfigDict(), **kwargs) -> None:
             xi = (x1, xn)
             yi = (y1, yn)
             
-            ax.plot(xi, yi, color='red', linestyle='dotted', zorder=1)
-            ax.scatter(xi[1], yi[1], marker='.', color='red', zorder=1)
+            ax.plot(xi, yi, color=config['imag_ph'], linestyle='dotted', zorder=1)
+            ax.scatter(xi[1], yi[1], marker='.', color=config['imag_ph'], zorder=1)
         
             # ****** real or magnitude lines *****
             xr = (x, x)
             yr = (0, rr[x])
             
-            ax.plot(xr, yr, color='blue', zorder=2)
-            ax.scatter(xr[1], yr[1], marker='.', color='blue', zorder=2)    
+            ax.plot(xr, yr, color=config['real_mag'], zorder=2)
+            ax.scatter(xr[1], yr[1], marker='.', color=config['real_mag'], zorder=2)    
     
             # get active tick lables, if enabled
             if config['label_active']:
@@ -231,7 +232,7 @@ def stem2D(K:vector, config=DefaultConfigDict(), **kwargs) -> None:
     ax.spines['right'].set_visible(False)
 
     # Make a custom legend
-    colors = ['blue','red']
+    colors = [config['real_mag'],config['imag_ph']]
     lines = [Line2D([0], [0], color=c, linewidth=2, linestyle='-') for c in colors]    
     plt.legend(lines, legend_names, fontsize = 'x-small', loc=2)
     
