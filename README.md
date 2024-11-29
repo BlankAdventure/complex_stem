@@ -1,4 +1,4 @@
-# complex_stem
+# zstem -> Complex Stem Plots
 Module for making nice plots of complex DFT vectors
 
 Basic usage:
