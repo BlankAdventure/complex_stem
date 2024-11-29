@@ -9,16 +9,10 @@ Created on Thu Nov 28 22:36:47 2024
 import plotly.graph_objs as go
 import numpy as np
 import plotly.io as pio
-from typing import Any, Callable
+#from typing import Any, Callable
+from utils import tick_formats #, tick_formatter
 
 
-
-tick_formats: dict[str, tuple[Callable, str]] = {
-    'f_hz':   (lambda *a: f'\n{a[2]*a[0]/a[1]:.0f}', '[Hz]'),
-    'df_hz':  (lambda *a: f'\n{a[0]/a[1]:.2f}', '[cyc/samp]'),
-    'df_rad': (lambda *a: f'\n{2*a[0]/a[1]:.2f}π)', '[rad/samp]'),
-    'df_pi':  (lambda *a: f'\n{2*a[0]}π/{a[1]}', '[rad/samp]')
-}
 
 tf = tick_formats['df_pi']
 default_angle = np.deg2rad(80)
