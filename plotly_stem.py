@@ -14,20 +14,21 @@ default_angle = np.deg2rad(80)
 
 addbr = lambda x: x.replace('\n','<br>')
 
-class Plotly():
-    def __init__(self):
-        self.fig = None
+class PlotlyStem():
+    def __init__(self, fig = None):        
+        self.__internal = False
+        if not fig:
+            fig = go.Figure()
+            self.__internal = True
+        self.fig = fig
         
     def stem(self, K: vector, th:float=default_angle, sf:float=3) -> None:
         self.N = len(K)
-        self.ki = np.arange(-(N//2),(N+1)//2)
+        self.ki = np.arange(-(self.N//2),(self.N+1)//2)
         self.th = th
         self.sf = sf
-        
-        if not self.fig:
-            self.fig = go.Figure()
             
-        self.update(K,show=False)   
+        self.__redraw(K)
         
         self.fig.update_yaxes(range = [-1,1],showline=True,linecolor='black')
         self.fig.update_xaxes(range = [self.ki[0],self.ki[-1]],showline=True,linecolor='black')
@@ -35,7 +36,8 @@ class Plotly():
             xaxis={'anchor': 'free',
                    'position': 0.5,
                    'tickvals': self.ki,
-                   'ticktext': self.ki
+                   'ticktext': self.ki,
+                   'range': [self.ki[0]-0.10,self.ki[-1]+0.10]
                    }, 
             yaxis={'anchor': 'free',
                    'position': 0.5,
@@ -44,11 +46,10 @@ class Plotly():
                    },    
         )
         self.fig.update_layout(showlegend=False, plot_bgcolor='white')
-        self.fig.show()
+        if self.__internal: self.fig.show()
+        return self.fig
         
-    def update(self, K:vector, show:bool=True) -> None:
-        if not self.fig:
-            self.stem(K)
+    def __redraw(self, K:vector) -> None:
         self.fig.data = []
         for i in range(self.N):
             if abs(K[i]) > 1e-3:    
@@ -72,7 +73,10 @@ class Plotly():
             self.fig.add_trace(go.Scatter(x=[self.ki[i]], y=[0],marker=dict(color='black'),
                                      hovertemplate=addbr(tick_formatter(self.ki[i],self.N,0, methods=['df_pi','df_hz'], units=False)),name=""))
 
-        if show: self.fig.show()
+    def update(self, K:vector) -> go.Figure():
+        self.__redraw(K)
+        if self.__internal: self.fig.show()
+        return self.fig
    
 if __name__ == "__main__":   
     
@@ -84,7 +88,7 @@ if __name__ == "__main__":
     K[5] = 0.5 + 1j*0.2
     K[15] = -0.8 - 1j*0.4
     
-    newfig = Plotly()
+    newfig = PlotlyStem()
     newfig.stem(K)
 
     K2 = np.zeros(N,dtype='complex128')
