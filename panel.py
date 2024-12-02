@@ -25,17 +25,15 @@ class Panel():
             ui.label('Freq').classes('m-auto p-0 m-0 font-medium')
             ui.label('Phase').classes('m-auto p-0 m-0 font-medium')     
 
-        c = ui.column()
-        ui.button('Add', on_click=lambda: self.add_row(c))        
-#with ui.column().classes('gap-2') as c:        
-        #    self.butt = ui.button('Add', on_click=lambda:self.add_row(c))         
-        #self.add_row(c)
+        c = ui.column().classes('gap-2')
+        ui.button('Add', on_click=lambda: self.add_row(c))
+        self.add_row(c, do_callback=False)
 
     def add_element(self, elem):
         self.e_count += 1
         kcoord = f'{self.r_count}-{self.e_count}'        
-        elem.on('update:model-value', lambda: self.callback(self.val_dict),throttle=self.th,leading_events=False)
         elem.bind_value_to(self.val_dict, kcoord)
+        elem.on('update:model-value', lambda: self.callback(self.val_dict),throttle=self.th,leading_events=False)
 
     def delete(self, row):
         for k in list(self.val_dict.keys()):
@@ -43,14 +41,13 @@ class Panel():
                 del self.val_dict[k]
         self.callback(self.val_dict)
 
-    def add_row(self, col):
+    def add_row(self, col, do_callback=True):
         self.e_count = 0
         self.r_count += 1
         with col:
             with ui.row().classes('items-center') as r:
                 [self.add_element(elem()) for elem in self.row_def]
                 ui.button(icon='delete', on_click = lambda x=self.r_count: (col.remove(r),self.delete(x))).props('round dense').classes('align-middle')
-        #self.butt.move(col)
-        self.callback(self.val_dict)
+        if do_callback: self.callback(self.val_dict)
  
 
