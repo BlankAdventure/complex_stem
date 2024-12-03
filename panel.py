@@ -9,6 +9,11 @@ Created on Sun Dec  1 00:56:48 2024
 from collections import defaultdict
 from nicegui import ui
 
+# Unpacks val_dict into a nested list-of-lists (each row is a list)
+def unpack(val_dict):
+    lst = list(val_dict.values())
+    table = [lst[i:i + 3] for i in range(0, len(lst), 3)]    
+    return table
 
 class Panel():
     def __init__(self, row_def, callback, throttle=0.2):    
