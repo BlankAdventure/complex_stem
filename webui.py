@@ -15,9 +15,22 @@ import numpy as np
 from panel import Panel, unpack
 import matplotlib.pyplot as plt
 
+
+class AliasKnob(ui.knob):
+    def __init__(self, *args, limit=0, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.limit = limit
+        self.on_value_change(self.check_alias)
+        
+    def check_alias(self, e):
+        if self.value > self.limit:
+            self.props ("color=red")
+        else:
+            self.props ("color=blue")
+
 class TimePlot():
     def __init__(self,x,y):
-        self.main_plot = ui.pyplot(figsize=(8, 3)) 
+        self.main_plot = ui.pyplot(figsize=(8, 3),close=False) 
         with self.main_plot:
             self.line, = plt.plot(x, y, 'o', linestyle='dashed', color='lightgrey', 
                                   mfc='blue',mec='blue', markersize=3)
@@ -39,20 +52,6 @@ class DFTPlot():
         self.zstem.update(new_K)
         self.dft_plot.update()
 
-
-# class Signal():
-#     def __init__(self, N):
-#         self.N = N
-#         self.x = np.arange(N)
-#         self.y = None
-#         self.K = None
-#     def build_sig(self, src_list):
-#         sig = sum([g[0]*np.cos(g[2]*np.pi/180 + 2*np.pi*g[1]*self.x/self.N) for g in src_list])
-#         K = fftshift(fft(sig)) / (self.N//2)
-#         self.y = sig
-#         self.K = K
-#         return (sig, K)
-
 def build_sig(src_list, N, x):
     sig = sum([g[0]*np.cos(g[2]*np.pi/180 + 2*np.pi*g[1]*x/N) for g in src_list])
     K = fftshift(fft(sig)) / (N//2)
@@ -69,7 +68,7 @@ N = 21
 
 row_def = [lambda: ui.knob(0.5, show_value=True, track_color='grey-4', 
                            min=0, max=1, step=0.1).props("size=50px :thickness=0.3"),
-           lambda: ui.knob(1, show_value=True, track_color='grey-4',
+           lambda: AliasKnob(1, limit=N//2, show_value=True, track_color='grey-4',
                            min=0, max=N, step=1).props("size=50px :thickness=0.3"),
            lambda: ui.knob(0, show_value=True, track_color='grey-4',
                            min=-180, max=180, step=5).props("size=50px :thickness=0.3")]
@@ -97,7 +96,7 @@ class App():
             with ui.row().classes('w-full').classes("justify-center"):
                 with ui.column():
                     with ui.card():
-                        Panel(row_def, callback=self.update, throttle=0.3)
+                        Panel(row_def, callback=self.update, throttle=0.15)
                 with ui.card():
                     self.time_plot = TimePlot(self.x, sig)
 App()
