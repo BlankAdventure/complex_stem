@@ -22,7 +22,7 @@ class PlotlyStem():
             self.__internal = True
         self.fig = fig
         
-    def stem(self, K: vector, th:float=default_angle, sf:float=3) -> None:
+    def stem(self, K: vector, th:float=default_angle, sf:float=2.5) -> go.Figure():
         self.N = len(K)
         self.ki = np.arange(-(self.N//2),(self.N+1)//2)
         self.th = th
@@ -59,7 +59,7 @@ class PlotlyStem():
                 y1 = 0
                 y2 = np.real(K[i])
                 self.fig.add_trace(go.Scatter(x=[x1,x2], y=[y1,y2],marker=dict(color='blue'),
-                                         hovertemplate=f"Real: {y2}",name=""))
+                                         hovertemplate=f"Real: {y2:.2f}",name=""))
                 # imag line
                 x1 = self.ki[i]
                 x2 = self.ki[i]
@@ -68,7 +68,7 @@ class PlotlyStem():
                 xn = np.cos(self.th)*(x2-x1) - np.sin(self.th)*(self.sf*y2-y1)+x1
                 yn = np.sin(self.th)*(x2-x1) + np.cos(self.th)*(self.sf*y2-y1)+y1
                 self.fig.add_trace(go.Scatter(x=[x1,xn], y=[y1,yn],marker=dict(color='red'),
-                                         hovertemplate=f"Imag: {y2}",name=""))
+                                         hovertemplate=f"Imag: {y2:.2f}",name=""))
                 
             self.fig.add_trace(go.Scatter(x=[self.ki[i]], y=[0],marker=dict(color='black'),
                                      hovertemplate=addbr(tick_formatter(self.ki[i],self.N,0, methods=['df_pi','df_hz'], units=False)),name=""))

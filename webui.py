@@ -12,9 +12,42 @@ import plotly.graph_objects as go
 from nicegui import ui, ElementFilter #, Tailwind
 from plotly_stem import PlotlyStem
 import numpy as np
-from dataclasses import dataclass
+#from dataclasses import dataclass
 from panel import Panel, unpack
-from functools import partial
+#from functools import partial
+import matplotlib.pyplot as plt
+
+class TimePlot():
+    def __init__(self,x,y):
+        self.main_plot = ui.pyplot(figsize=(8, 3)) #figsize=(10, 3)
+        with self.main_plot:
+            self.line, = plt.plot(x, y, 'o', linestyle='dashed', color='lightgrey', 
+                                  mfc='blue',mec='blue', markersize=3)
+            self.main_plot.fig.tight_layout()
+
+
+            #plt.ylim(-1, 1)
+            
+        #self.fig = ui.matplotlib(figsize=(3, 2)).figure
+        #with self.fig:
+        #    ax = self.fig.gca()
+        #    self.plot = 
+            #self.stem = ax.stem(x, y) #, '-')
+
+    def update(self, new_y):
+        with self.main_plot:
+            self.line.set_ydata(new_y)
+            #self.stem.markerline.set_ydata(new_y)
+            #self.stem.set_ydata(new_y)
+            
+        #self.main_plot = ui.pyplot(figsize=(9, 5))
+        #self.trace, = plt.plot(self.base_ff,self.base_psd, color='k')
+        #plt.xlim(-self.base_fs/2,self.base_fs/2)
+        #plt.ylim(-65, -25)                    
+        #plt.xlabel('Freq [Hz]')
+        #plt.ylabel('PSD [dBW/Hz]')
+        #plt.margins(x=0,y=0,tight=True)                    
+        #self.main_plot.fig.tight_layout()
 
 
 class DFTPlot():
@@ -83,23 +116,23 @@ class App():
         sources = unpack(new_data)
         y,K = self.sig.build_sig(sources)
         self.dft_plot.update(K)
-
-    def setup_ui(self):
-        with ui.column().classes('w-full'):
-            with ui.row().classes('w-full'):
-                # ***** dft plot here ****
-                self.dft_plot = DFTPlot(self.sig.K)
+        self.time_plot.update(y)
         
-            with ui.row().classes():
-                #ui.label('--- left pane --')
+    def setup_ui(self):
+        with ui.column().classes('w-10/12'):
+            with ui.row(): #.classes('w-full'):
+                # ***** dft plot here ****
+                with ui.card().classes('w-full'):
+                    self.dft_plot = DFTPlot(self.sig.K)
+        
+            with ui.row().classes('w-full').classes("justify-center"):
                 with ui.column():
-                    Panel(row_def, callback=self.update, throttle=0.3)
-                
-                ui.label('--- right pane --')
-                #time_plot = ui.plotly(fig2)
-                #time_plot = ui
+                    with ui.card():
+                        Panel(row_def, callback=self.update, throttle=0.3)
+                with ui.card():
+                    self.time_plot = TimePlot(self.sig.x, self.sig.y)
 App()
-borders_on()
+#borders_on()
 
 ui.run(port=5000, on_air=False,title='StemPlot',host='0.0.0.0')
 
