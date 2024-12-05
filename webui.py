@@ -99,15 +99,15 @@ class App():
         self.x = np.arange(N)
         self.setup_ui()
     
-    def update(self, new_data: dict):
-        sources = unpack(new_data)
+    def update(self, new_data: dict):        
+        sources = unpack(new_data)        
         sig,K = build_sig(sources,self.N,self.x)
         self.dft_plot.update(K)
         self.time_plot.update(sig)
         
     def setup_ui(self):
         sig, K = build_sig([[0.5,1,0]], self.N, self.x)        
-        with ui.row():
+        with ui.row().classes('mx-auto'):
             with ui.column():
                 with ui.card().classes('h-64'):
                     self.dft_plot = DFTPlot(K)                    
