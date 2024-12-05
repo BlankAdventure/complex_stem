@@ -11,10 +11,26 @@ import plotly.io as pio
 from utils import tick_formatter, vector
 
 default_angle = np.deg2rad(80)
-
 addbr = lambda x: x.replace('\n','<br>')
 
+
+RI_opts = {'f1': lambda x: np.real(x),
+           'f2': lambda x: np.imag(x),
+           'h1': "Real: {y2:.2f}",
+           'h2': "Imag: {y2:.2f}"
+           } 
+
+MP_opts = {'f1': lambda x: np.abs(x),
+           'f2': lambda x: np.angle(x)/np.pi,
+           'h1': "Mag: {y2:.2f}",
+           'h2': "Ph: {180*y2:.2f}"
+           } 
+
+def fstr(template):
+    return eval(f"f'{template}'")
+
 class PlotlyStem():
+    
     def __init__(self, fig = None):        
         self.__internal = False
         if not fig:
@@ -22,11 +38,21 @@ class PlotlyStem():
             self.__internal = True
         self.fig = fig
         
-    def stem(self, K: vector, th:float=default_angle, sf:float=2.5) -> go.Figure:
+
+    def set_mode(self, mode: str) -> None:
+        match mode:
+            case "MP":
+                self.opts = MP_opts
+            case "RI":
+                self.opts = RI_opts        
+
+        
+    def stem(self, K: vector, th:float=default_angle, sf:float=2.5, mode:str='MP') -> go.Figure:
         self.N = len(K)
         self.ki = np.arange(-(self.N//2),(self.N+1)//2)
         self.th = th
         self.sf = sf
+        self.mode = mode
             
         self.__redraw(K)
         
@@ -52,23 +78,23 @@ class PlotlyStem():
     def __redraw(self, K:vector) -> None:
         self.fig.data = []
         for i in range(self.N):
-            if abs(K[i]) > 1e-3:    
-                # real line
+            if abs(K[i]) > 1e-3:                    
                 x1 = self.ki[i]
                 x2 = self.ki[i]
                 y1 = 0
-                y2 = np.real(K[i])
+                
+                # ***** Real or Magnitude stem *****                
+                y2 = self.opts['f1'](K[i])
                 self.fig.add_trace(go.Scatter(x=[x1,x2], y=[y1,y2],marker=dict(color='blue'),
-                                         hovertemplate=f"Real: {y2:.2f}",name=""))
-                # imag line
-                x1 = self.ki[i]
-                x2 = self.ki[i]
-                y1 = 0
-                y2 = np.imag(K[i])
+                                         hovertemplate=eval(f"f'{self.opts['h1']}'"),name=""))
+                
+                
+                # ***** Imag or Phase stem *****                
+                y2 = self.opts['f2'](K[i])
                 xn = np.cos(self.th)*(x2-x1) - np.sin(self.th)*(self.sf*y2-y1)+x1
                 yn = np.sin(self.th)*(x2-x1) + np.cos(self.th)*(self.sf*y2-y1)+y1
                 self.fig.add_trace(go.Scatter(x=[x1,xn], y=[y1,yn],marker=dict(color='red'),
-                                         hovertemplate=f"Imag: {y2:.2f}",name=""))
+                                         hovertemplate=eval(f"f'{self.opts['h2']}'"),name=""))
                 
             self.fig.add_trace(go.Scatter(x=[self.ki[i]], y=[0],marker=dict(color='black'),
                                      hovertemplate=addbr(tick_formatter(self.ki[i],self.N,0, methods=['df_pi','df_hz'], units=False)),name=""))
@@ -77,6 +103,8 @@ class PlotlyStem():
         self.__redraw(K)
         if self.__internal: self.fig.show()
         return self.fig
+    
+    mode = property(fset=set_mode)        
    
 if __name__ == "__main__":   
     
