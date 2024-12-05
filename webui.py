@@ -87,20 +87,31 @@ class App():
         
     def setup_ui(self):
         sig, K = build_sig([[0.5,1,0]], self.N, self.x)
-        with ui.column().classes('w-10/12'):
-            with ui.row():
-                # ***** dft plot here ****
-                with ui.card().classes('w-full'):
-                    self.dft_plot = DFTPlot(K)
         
-            with ui.row().classes('w-full').classes("justify-center"):
-                with ui.column():
-                    with ui.card():
-                        Panel(row_def, callback=self.update, throttle=0.15)
+        with ui.row():
+            with ui.column():
+                with ui.card():
+                    self.dft_plot = DFTPlot(K)                    
                 with ui.card():
                     self.time_plot = TimePlot(self.x, sig)
+            with ui.column():
+                with ui.card():
+                    Panel(row_def, callback=self.update, throttle=0.15)
+        
+        # with ui.column().classes('w-10/12'):
+        #     with ui.row():
+        #         # ***** dft plot here ****
+        #         with ui.card().classes('w-full'):
+        #             self.dft_plot = DFTPlot(K)
+        
+        #     with ui.row().classes('w-full').classes("justify-center"):
+        #         with ui.column():
+        #             with ui.card():
+        #                 Panel(row_def, callback=self.update, throttle=0.15)
+        #         with ui.card():
+        #             self.time_plot = TimePlot(self.x, sig)
 App()
-#borders_on()
+borders_on()
 
 ui.run(port=5000, on_air=False,title='StemPlot',host='0.0.0.0')
 
