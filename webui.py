@@ -120,5 +120,5 @@ class App():
 App()
 #borders_on()
 
-ui.run(port=5000, on_air=False,title='StemPlot',host='0.0.0.0')
+ui.run(port=5000,title='DFT Plot',host='0.0.0.0')
 
