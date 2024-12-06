@@ -62,14 +62,20 @@ class TimePlot():
         
 class DFTPlot():
     def __init__(self, K:vector):
+        self.K = K
         self.dft_fig = go.Figure()
         self.zstem = PlotlyStem(self.dft_fig)
-        self.zstem.stem(K)
+        self.zstem.stem(self.K)
         self.dft_fig.update_layout(margin=dict(l=20, r=20, t=0, b=10))
         self.dft_plot = ui.plotly(self.dft_fig).classes('w-full h-80')
 
+    def set_mode(self, mode: str):
+        self.zstem.mode = mode
+        self.update(self.K)
+        
     def update(self, new_K:vector):
-        self.zstem.update(new_K)
+        self.K = new_K
+        self.zstem.update(self.K)
         self.dft_plot.update()
 
 def build_sig(src_list: list[list], N:int, x: vector):
@@ -115,6 +121,7 @@ class App():
                     self.time_plot = TimePlot(self.x, sig)
             with ui.column():
                 with ui.card():
+                    ui.toggle({'RI': 'RI', 'MP': 'MP'}, value='MP', on_change=lambda e: self.dft_plot.set_mode(e.value))
                     Panel(row_def, callback=self.update, throttle=0.15)
         
 App()
