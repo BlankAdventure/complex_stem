@@ -121,7 +121,7 @@ class App():
                     self.time_plot = TimePlot(self.x, sig)
             with ui.column():
                 with ui.card():
-                    ui.toggle({'RI': 'RI', 'MP': 'MP'}, value='MP', on_change=lambda e: self.dft_plot.set_mode(e.value))
+                    ui.toggle({'RI': 'Real/Imag', 'MP': 'Mag/Phase'}, value='MP', on_change=lambda e: self.dft_plot.set_mode(e.value))
                     Panel(row_def, callback=self.update, throttle=0.15)
         
 App()
