@@ -9,7 +9,7 @@ import os
 os.environ['FOR_DISABLE_CONSOLE_CTRL_HANDLER'] = '1'
 from numpy.fft import fft, fftshift
 import plotly.graph_objects as go
-from nicegui import ui, ElementFilter #, Tailwind
+from nicegui import ui, ElementFilter 
 from plotly_stem import PlotlyStem, vector
 import numpy as np
 from panel import Panel, unpack
@@ -34,27 +34,24 @@ class TimePlot():
         self.time_fig.add_trace(go.Scatter(x=x, y=y, mode='lines+markers',
                                            line = dict(color='lightgrey',dash='dash'),
                                            marker = dict(color='blue'),name=""))
-        self.time_fig.add_trace(go.Scatter(x=x, y=np.zeros(len(x)),mode='markers',marker=dict(color='black'),name=""))
-                              
+        self.time_fig.add_trace(go.Scatter(x=x, y=np.zeros(len(x)),
+                                           mode='markers',marker=dict(color='black'),name=""))
         self.time_fig.update_yaxes(range = [-1,1],showline=True,linecolor='black')
         self.time_fig.update_xaxes(range = [x[0],x[-1]],showline=True,linecolor='black')
-        self.time_fig.update_layout(
-            xaxis={'anchor': 'free',
-                   'position': 0.5,
-                   'tickvals': x,
-                   'ticktext': x,
-                   'range': [x[0]-0.10,x[-1]+0.10]
-                   }, 
-            yaxis={'anchor': 'free',
-                   'position': 0.0,
-                   'tickvals': [1,-1],
-                   'ticktext': [1,-1],
-                   },    
-        )
+        self.time_fig.update_layout(    xaxis={'anchor': 'free',
+                                               'position': 0.5,
+                                               'tickvals': x,
+                                               'ticktext': x,
+                                               'range': [x[0]-0.10,x[-1]+0.10]
+                                               }, 
+                                        yaxis={'anchor': 'free',
+                                               'position': 0.0,
+                                               'tickvals': [1,-1],
+                                               'ticktext': [1,-1],
+                                               })
         self.time_fig.update_layout(showlegend=False, plot_bgcolor='white')        
         self.time_fig.update_layout(margin=dict(l=20, r=20, t=0, b=10))
-        self.time_plot = ui.plotly(self.time_fig).classes('w-full h-80')
-    
+        self.time_plot = ui.plotly(self.time_fig).classes('w-full h-80')    
         
     def update(self, y_new: vector):
         self.time_fig['data'][0]['y'] = y_new
@@ -121,11 +118,12 @@ class App():
                     self.time_plot = TimePlot(self.x, sig)
             with ui.column():
                 with ui.card():
-                    ui.toggle({'RI': 'Real/Imag', 'MP': 'Mag/Phase'}, value='MP', on_change=lambda e: self.dft_plot.set_mode(e.value))
+                    ui.toggle({'RI': 'Real/Imag', 'MP': 'Mag/Phase'}, value='MP', 
+                              on_change=lambda e: self.dft_plot.set_mode(e.value))
                     Panel(row_def, callback=self.update, throttle=0.15)
-        
-App()
-#borders_on()
 
-ui.run(port=5000,title='DFT Plot',host='0.0.0.0')
+if __name__ in {"__main__", "__mp_main__"}:
+    borders_on()
+    App()
+    ui.run(port=5000,title='DFT Plot',host='0.0.0.0')
 
