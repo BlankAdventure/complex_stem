@@ -2,12 +2,16 @@
 Creates a nice visualization of an FFT signal represenation.
 
 """
+if __package__:    
+  from .utils import DefaultConfigDict, vector, merge_dicts, tick_formatter, get_index
+else:
+  from utils import DefaultConfigDict, vector, merge_dicts, tick_formatter, get_index
+
 
 
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import numpy as np
-from utils import DefaultConfigDict, vector, merge_dicts, tick_formatter, get_index
 from dataclasses import asdict
 
 TICK_BACKGROUND = "#FFFFFFBF"

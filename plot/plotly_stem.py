@@ -5,10 +5,14 @@ Created on Thu Nov 28 22:36:47 2024
 @author: BlankAdventure
 """
 
+if __package__:    
+  from .utils import tick_formatter, vector
+else:
+  from utils import tick_formatter, vector
+
 import plotly.graph_objs as go
 import numpy as np
 import plotly.io as pio
-from utils import tick_formatter, vector
 
 default_angle = np.deg2rad(80)
 addbr = lambda x: x.replace('\n','<br>')

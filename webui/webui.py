@@ -2,15 +2,26 @@
 """
 Created on Sat Nov 30 16:52:26 2024
 
-@author: Patrick
+@author: BlankAdventure
 """
+
+if not __package__:
+    import sys
+    from pathlib import Path
+    sys.path.append(str(Path(__file__).parent.parent)) 
+
 
 import os
 os.environ['FOR_DISABLE_CONSOLE_CTRL_HANDLER'] = '1'
 from numpy.fft import fft, fftshift
 import plotly.graph_objects as go
 from nicegui import ui, ElementFilter 
-from plotly_stem import PlotlyStem, vector
+
+from plot.plotly_stem import PlotlyStem, vector
+#from ..plot import PlotlyStem, vector
+#from .plot.plotly_stem import PlotlyStem, vector
+#from plotly_stem import PlotlyStem, vector
+
 import numpy as np
 from panel import Panel, unpack
 
