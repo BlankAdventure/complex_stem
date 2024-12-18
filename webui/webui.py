@@ -14,11 +14,11 @@ import plotly.graph_objects as go
 from nicegui import ui, ElementFilter 
 
 if not __package__:
-    import sys
-    from pathlib import Path
-    sys.path.append(str(Path(__file__).parent.parent)) 
+   import sys
+   from pathlib import Path
+   sys.path.append(str(Path(__file__).parent.parent)) 
 
-from plot.plotly_stem import PlotlyStem, vector
+from zstem.plotly_stem import PlotlyStem, vector
 from panel import Panel, unpack
 
 
